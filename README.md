@@ -1,5 +1,8 @@
 # Therore Artifact Cache Plugin
 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Maven Central](https://img.shields.io/maven-central/v/org.apache.maven/apache-maven.svg)](http://search.maven.org/#search%7Cga%7C1%7Ctherore-artifact-cache-plugin)
+
 With this maven plugin you can use any maven repository as a cache for external resources.
 
 For example, supose you want to store the OpenJDK binaries in your maven repository. This could be helpful to reduce the download time or to ensure availability of that resource in the future.
