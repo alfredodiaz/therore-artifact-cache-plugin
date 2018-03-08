@@ -67,7 +67,7 @@ class ArtifactCachePlugin extends AbstractMojo {
         try {
             file << new URL(url).openStream()
         } catch  (FileNotFoundException e) {
-            log.error("FileNotFoundException: "+e.getMessage())
+            log.error("FileNotFoundException: "+e.message)
         }
         return file.absolutePath
     }
@@ -81,18 +81,19 @@ class ArtifactCachePlugin extends AbstractMojo {
         coordinate.setExtension( artifactHandlerManager.getArtifactHandler(resource.type)?.extension ?: resource.type)
 
         ProjectBuildingRequest buildingRequest =
-                new DefaultProjectBuildingRequest( session.getProjectBuildingRequest() )
+                new DefaultProjectBuildingRequest(session.projectBuildingRequest)
         try {
-            def artifact = artifactResolver.resolveArtifact(buildingRequest, coordinate).getArtifact()
+            def artifact = artifactResolver.resolveArtifact(buildingRequest, coordinate).artifact
             log.info( "Located artifact ${artifact}")
             return true
         } catch (ArtifactResolverException e) {
-            log.error(e.getMessage())
+            log.error(e.message)
             return false
         }
     }
 
     void deployArtifact(Resource resource, File file) {
+        ArtifactRepository deploymentRepository = project.releaseArtifactRepository
         ArtifactHandler artifactHandler = artifactHandlerManager.getArtifactHandler(resource.type)
         Artifact artifact = new DefaultArtifact(
                 resource.groupId,
@@ -103,8 +104,14 @@ class ArtifactCachePlugin extends AbstractMojo {
                 resource.classifier,
                 artifactHandler
         )
-        ArtifactRepository deploymentRepository = project.getDistributionManagementArtifactRepository()
-        deployer.deploy( file, artifact, deploymentRepository, localRepository )
+        if (deploymentRepository!=null)
+            try {
+                deployer.deploy( file, artifact, deploymentRepository, localRepository )
+            } catch (Exception e) {
+                log.error("Error deploying the artifact $artifact on repository $deploymentRepository", e)
+            }
+        else
+            log.warn("no release repository is available. Artifact will not be cached")
     }
 
 }
