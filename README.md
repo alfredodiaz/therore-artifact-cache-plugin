@@ -13,7 +13,7 @@ Configuring the plugin like we show, you could do this task automatically.
 <plugin>
   <groupId>net.therore</groupId>
   <artifactId>therore-artifact-cache-plugin</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.2</version>
   <executions>
     <execution>
       <phase>package</phase>
@@ -45,7 +45,7 @@ After the plugin execution, the original resource (OpenJDK in our example) shoul
 
 You can follow its process through maven logs.
 ```
-[INFO] --- therore-artifact-cache-plugin:1.0.0:cache (default) @ therore-artifact-cache-plugin-test ---
+[INFO] --- therore-artifact-cache-plugin:1.0.2:cache (default) @ therore-artifact-cache-plugin-test ---
 [WARNING] The POM for net.java:openjdk:tar.gz:linux-x64_bin:9.0.4 is missing, no dependency information available
 [ERROR] Failure to find net.java:openjdk:tar.gz:linux-x64_bin:9.0.4 in http://nexus.therore.net/repository/public was cached in the local repository, resolution will not be reattempted until the update interval of central has elapsed or updates are forced
 [INFO] downloading openjdk-9.0.4_linux-x64_bin.tar.gz from https://download.java.net/java/GA/jdk9/9.0.4/binaries/openjdk-9.0.4_linux-x64_bin.tar.gz
