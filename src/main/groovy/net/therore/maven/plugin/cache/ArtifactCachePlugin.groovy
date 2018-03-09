@@ -23,7 +23,7 @@ import org.apache.maven.shared.artifact.resolve.ArtifactResolverException
 import java.nio.file.Files
 import java.nio.file.Path
 
-@Mojo(name = "cache", requiresProject = true)
+@Mojo(name = "cache", requiresProject = true, threadSafe = true)
 class ArtifactCachePlugin extends AbstractMojo {
 
     @Parameter
@@ -48,28 +48,23 @@ class ArtifactCachePlugin extends AbstractMojo {
     private ArtifactRepository localRepository
 
     void execute() throws MojoExecutionException, MojoFailureException {
-        resources.each {resource ->
-            if (!checkIfArtifactExists(resource)) {
-                def path = downloadResource(resource.sourceURL)
-
-                deployArtifact(resource, path as File)
-            }
-        }
-    }
-
-    String downloadResource(String url) {
         Path tempDir = Files.createTempDirectory("artifacts-")
-        def fileName=(url=~/.*\/([^\/]+)/).collect{it[1]}[0]
-        log.info("downloading ${fileName} from ${url}")
-
-        def file = new File("${tempDir}/${fileName}")
-        file.delete()
         try {
-            file << new URL(url).openStream()
-        } catch  (FileNotFoundException e) {
-            log.error("FileNotFoundException: "+e.message)
+            resources.each { resource ->
+                if (!checkIfArtifactExists(resource)) {
+                    log.info("downloading file from ${resource.sourceURL}")
+                    Path path = Files.createTempFile(tempDir, null, null)
+                    try {
+                        path << new URL(resource.sourceURL).openStream()
+                        deployArtifact(resource, path.toFile())
+                    } catch (FileNotFoundException e) {
+                        log.error("FileNotFoundException: " + e.getMessage())
+                    }
+                }
+            }
+        } finally {
+            tempDir.deleteDir()
         }
-        return file.absolutePath
     }
 
     boolean checkIfArtifactExists(Resource resource) {
